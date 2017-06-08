@@ -185,11 +185,11 @@ class MinimaxPlayer(IsolationPlayer):
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
         best_move = (-1, -1)
-
+        depth = 1
         try:
-            # The try/except block will automatically catch the exception
-            # raised when the timer is about to expire.
-            return self.minimax(game, self.search_depth)
+            while True:
+                best_move = self.minimax(game, depth)
+                depth += 1
 
         except SearchTimeout:
             pass  # Handle any actions required after timeout as needed
@@ -298,89 +298,58 @@ class AlphaBetaPlayer(IsolationPlayer):
     """
 
     def get_move(self, game, time_left):
-        self.time_left = lambda: time_left() - self.TIMER_THRESHOLD
-
-        # Initialize the best move so that this function returns something
-        # in case the search fails due to timeout
-
-
-        search_depth = 1
-        return_move = (-1, -1)
-        while self.search_depth >= search_depth:
-            try:
-                # The try/except block will automatically catch the exception
-                # raised when the timer is about to expire.
-                move = self.alphabeta(game, search_depth)
-                if move == (-1, -1):
-                    #print('Existential Crisis after {} moves with {}ms left'.format(search_depth, self.time_left()))
-                    break
-                    #return return_move
-                #elif will_win:
-                #    return_move = move
-                #    return return_move
-                else:
-                    return_move = move
-                search_depth += 1
-
-            except SearchTimeout:
-                #print('timeing out at search depth {} at time {}'.format(search_depth - 1, self.time_left()))
-                return return_move
-            except FoundWinningMoveException as fwme:
-                return fwme.move
-
-        # Return the best move from the last completed search iteration
-        return return_move
-
-    def recursive_alphabeta(self, game, depth, alpha, beta, is_max):
-        if self.time_left() < 0:
-            # print('Raising SearchTimeout, time left:{}'.format(self.time_left()))
-            raise SearchTimeout
-        if depth <= 1:
-            return self.score(game, self)
-
-        legal_moves = game.get_legal_moves()
-        if not legal_moves:
-            return float('-inf') if is_max else float('inf')
-
-        running_score = float('inf') * ((-1) ** float(is_max))
-        for legal_move in legal_moves:
-            recursive_score = self.recursive_alphabeta(game=game.forecast_move(legal_move),
-                                                       depth=depth - 1,
-                                                       alpha=alpha,
-                                                       beta=beta,
-                                                       is_max=(not is_max))
-            if is_max:
-                running_score = max(running_score, recursive_score)
-                alpha = max(alpha, running_score)
-            else:
-                running_score = min(running_score, recursive_score)
-                beta = min(beta, running_score)
-            if beta <= alpha:
-                break
-        return running_score
-
+        self.time_left = time_left
+        best_move = (-1, -1)
+        # TODO: finish this function!
+        # raise NotImplementedError
+        depth = 1
+        try:
+            while depth >= 0:
+                best_move = self.alphabeta(game, depth)
+                if self.time_left() < 0:
+                    raise SearchTimeout()
+                depth = depth + 1
+        except SearchTimeout:
+            pass
+        return best_move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
 
-        #print('Called with depth {}'.format(depth))
+        v = float("-inf")
+        argmax_action = (-1, -1)
+        new_score = 0
+        for action in game.get_legal_moves():
+            new_score = self.min_value(game.forecast_move(action), depth - 1, alpha, beta)
+            alpha = max(alpha, new_score)
+            if new_score >= v:
+                v = new_score
+                argmax_action = action
+        return argmax_action
 
-        selected_move = (-1, -1)
-        legal_moves = game.get_legal_moves()
-        if not legal_moves:
-            return selected_move
-        max_score = float('-inf')
-        for legal_move in legal_moves:
-            score = self.recursive_alphabeta(game=game.forecast_move(legal_move),
-                                             depth=depth,
-                                             alpha=max_score,
-                                             beta=beta,
-                                             is_max=False)
-            if score > max_score or (max_score == float('-inf')):
-                max_score = score
-                selected_move = legal_move
-        if max_score == float('inf'):
-            raise FoundWinningMoveException(move=selected_move)
-        return selected_move#, max_score == float('inf')
+    def min_value(self, game, depth, alpha, beta):
 
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+        if depth == 0: return self.score(game, self)
+        v = float("inf")
+        for move in game.get_legal_moves():
+            v = min(v, self.max_value(game.forecast_move(move), depth - 1, alpha, beta))
+            if v <= alpha:
+                return v
+            beta = min(beta, v)
+        return v
 
+    def max_value(self, game, depth, alpha, beta):
 
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+        if depth == 0: return self.score(game, self)
+        v = float("-inf")
+        for move in game.get_legal_moves():
+            v = max(v, self.min_value(game.forecast_move(move), depth - 1, alpha, beta))
+            if v >= beta:
+                return v
+            alpha = max(alpha, v)
+        return v
