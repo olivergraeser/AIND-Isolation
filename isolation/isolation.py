@@ -46,6 +46,7 @@ class Board(object):
         self._board_state = [Board.BLANK] * (width * height + 3)
         self._board_state[-1] = Board.NOT_MOVED
         self._board_state[-2] = Board.NOT_MOVED
+        self._search_depth = list()
 
     def hash(self):
         return str(self._board_state).__hash__()
@@ -90,6 +91,7 @@ class Board(object):
         new_board._active_player = self._active_player
         new_board._inactive_player = self._inactive_player
         new_board._board_state = copy(self._board_state)
+        new_board._search_depth = copy(self._search_depth)
         return new_board
 
     def forecast_move(self, move):
@@ -190,6 +192,9 @@ class Board(object):
         self._board_state[-3] ^= 1
         self._active_player, self._inactive_player = self._inactive_player, self._active_player
         self.move_count += 1
+
+    def record_search_depth(self, depth):
+        self._search_depth.append((self._board_state[-3]+1, depth))
 
     def is_winner(self, player):
         """ Test whether the specified player has won the game. """
@@ -303,18 +308,19 @@ class Board(object):
             move_start = time_millis()
             time_left = lambda : time_limit - (time_millis() - move_start)
             curr_move = self._active_player.get_move(game_copy, time_left)
+            self._search_depth = game_copy._search_depth
             move_end = time_left()
 
             if curr_move is None:
                 curr_move = Board.NOT_MOVED
 
             if move_end < 0:
-                return self._inactive_player, move_history, "timeout"
+                return self._inactive_player, move_history, "timeout", self._search_depth
 
             if curr_move not in legal_player_moves:
                 if len(legal_player_moves) > 0:
-                    return self._inactive_player, move_history, "forfeit"
-                return self._inactive_player, move_history, "illegal move"
+                    return self._inactive_player, move_history, "forfeit", self._search_depth
+                return self._inactive_player, move_history, "illegal move", self._search_depth
 
             move_history.append(list(curr_move))
 

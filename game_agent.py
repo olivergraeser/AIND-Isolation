@@ -35,7 +35,7 @@ def moves_intersect(game): #returns True if the following possible moves of play
         r, c = p2loc
         p2moves = [(r + dr, c + dc) for dr, dc in directions
                    if mil((r + dr, c + dc), game)]
-    return bool(set(p1moves) & set(p2moves))
+    return bool(set(p1moves) & set(p2moves))/2
 
 
 def possible_moves_count(row, column, game): # returns the number of possible moves if the board was empty
@@ -60,22 +60,37 @@ def legal_move_primary(game, player):
         opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
         return float(own_legal_moves - opponent_legal_moves)
 
-def legal_move_primary_opp13(game, player):
+def legal_move_primary_opp11(game, player):
     if len(game.get_legal_moves(game.active_player)) == 0:
         return float('-inf') if player == game.active_player else float('inf')
     else:
         own_legal_moves = len(game.get_legal_moves(player=player))
         opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
-        return float(own_legal_moves - 1.3*opponent_legal_moves)
+        return float(own_legal_moves - 1.1*opponent_legal_moves)
 
-def legal_move_primary_opp14(game, player):
+def legal_move_primary_opp12(game, player):
     if len(game.get_legal_moves(game.active_player)) == 0:
         return float('-inf') if player == game.active_player else float('inf')
     else:
         own_legal_moves = len(game.get_legal_moves(player=player))
         opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
-        return float(own_legal_moves - 1.4*opponent_legal_moves)
+        return float(own_legal_moves - 1.2*opponent_legal_moves)
 
+def legal_move_primary_opp08(game, player):
+    if len(game.get_legal_moves(game.active_player)) == 0:
+        return float('-inf') if player == game.active_player else float('inf')
+    else:
+        own_legal_moves = len(game.get_legal_moves(player=player))
+        opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
+        return float(own_legal_moves - .8*opponent_legal_moves)
+
+def legal_move_primary_opp09(game, player):
+    if len(game.get_legal_moves(game.active_player)) == 0:
+        return float('-inf') if player == game.active_player else float('inf')
+    else:
+        own_legal_moves = len(game.get_legal_moves(player=player))
+        opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
+        return float(own_legal_moves - .9*opponent_legal_moves)
 
 def legal_move_primary_relsum(game, player):
     if len(game.get_legal_moves(game.active_player)) == 0:
@@ -129,16 +144,15 @@ def custom_score(game, player: 'IsolationPlayer') ->float:
 
 def custom_score_2(game, player):
 
-    return legal_move_primary_relmax(game, player)
-
+    return legal_move_primary_opp08(game, player)
 
 def custom_score_3(game, player):
 
-    return legal_move_primary_relsum(game, player)
+    return legal_move_primary_opp09(game, player)
 
 class IsolationPlayer:
 
-    def __init__(self, search_depth=100, score_fn=custom_score, timeout=10., name=None):
+    def __init__(self, search_depth=3, score_fn=custom_score, timeout=10., name=None):
         self.search_depth = search_depth
         self.score = score_fn
         self.time_left = None
@@ -188,13 +202,14 @@ class MinimaxPlayer(IsolationPlayer):
         depth = 1
         try:
             while depth <= self.search_depth:
-                best_move = self.minimax2(game, depth)
+                best_move = self.minimax(game, depth)
                 depth += 1
 
         except SearchTimeout:
             pass  # Handle any actions required after timeout as needed
 
         # Return the best move from the last completed search iteration
+        game.record_search_depth(depth - 1)
         return best_move
 
     def minimax(self, game, depth):
@@ -300,7 +315,7 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         search_depth = 1
         return_move = (-1, -1)
-        while self.search_depth >= search_depth:
+        while True: # self.search_depth >= search_depth:
             try:
                 # The try/except block will automatically catch the exception
                 # raised when the timer is about to expire.
@@ -318,11 +333,14 @@ class AlphaBetaPlayer(IsolationPlayer):
 
             except SearchTimeout:
                 #print('timeing out at search depth {} at time {}'.format(search_depth - 1, self.time_left()))
+                game.record_search_depth(search_depth - 1)
                 return return_move
             except FoundWinningMoveException as fwme:
+                game.record_search_depth(search_depth - 1)
                 return fwme.move
 
         # Return the best move from the last completed search iteration
+        game.record_search_depth(search_depth - 1)
         return return_move
 
     def recursive_alphabeta(self, game, depth, alpha, beta, is_max):

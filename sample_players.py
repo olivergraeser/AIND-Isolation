@@ -136,7 +136,7 @@ def center_score(game, player):
 
 class RandomPlayer():
     """Player that chooses a move randomly."""
-
+    score = None
     def get_move(self, game, time_left):
         """Randomly select a move from the available legal moves.
 

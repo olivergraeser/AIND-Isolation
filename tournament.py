@@ -23,7 +23,7 @@ from sample_players import (RandomPlayer, open_move_score,
 from game_agent import (MinimaxPlayer, AlphaBetaPlayer, custom_score,
                         custom_score_2, custom_score_3)
 
-NUM_MATCHES = 1  # number of matches against each opponent
+NUM_MATCHES = 200  # number of matches against each opponent
 TIME_LIMIT = 150  # number of milliseconds before timeout
 
 DESCRIPTION = """
@@ -36,6 +36,7 @@ game_agent.py.
 
 Agent = namedtuple("Agent", ["player", "name"])
 
+search_depths = list()
 
 def play_round(cpu_agent, test_agents, win_counts, num_matches):
     """Compare the test agents to the cpu agent in "fair" matches.
@@ -46,6 +47,7 @@ def play_round(cpu_agent, test_agents, win_counts, num_matches):
     """
     timeout_count = 0
     forfeit_count = 0
+    global search_depths
     for _ in range(num_matches):
 
         games = sum([[Board(cpu_agent.player, agent.player),
@@ -60,13 +62,16 @@ def play_round(cpu_agent, test_agents, win_counts, num_matches):
 
         # play all games and tally the results
         for game in games:
-            winner, _, termination = game.play(time_limit=TIME_LIMIT)
+            winner, _, termination, search_depth = game.play(time_limit=TIME_LIMIT)
             win_counts[winner] += 1
-
+            search_depths.append(((str(game._player_1), str(game._player_1.score)),
+                                  (str(game._player_2), str(game._player_2.score)),
+                                  search_depth))
             if termination == "timeout":
                 timeout_count += 1
             elif termination == "forfeit":
                 forfeit_count += 1
+
 
     return timeout_count, forfeit_count
 
@@ -86,6 +91,8 @@ def play_matches(cpu_agents, test_agents, num_matches):
 
     print("\n{:^9}{:^13}".format("Match #", "Opponent") + ''.join(['{:^13}'.format(x[1].name) for x in enumerate(test_agents)]))
     print("{:^9}{:^13} ".format("", "") +  ' '.join(['{:^5}| {:^5}'.format("Won", "Lost") for x in enumerate(test_agents)]))
+    from collections import defaultdict
+    winrecords = defaultdict(lambda :defaultdict(int))
 
     for idx, agent in enumerate(cpu_agents):
         wins = {key: 0 for (key, value) in test_agents}
@@ -94,6 +101,8 @@ def play_matches(cpu_agents, test_agents, num_matches):
         print("{!s:^9}{:^13}".format(idx + 1, agent.name), end="", flush=True)
 
         counts = play_round(agent, test_agents, wins, num_matches)
+        for key,value in test_agents:
+            winrecords[value][agent.name] = wins[key]
         total_timeouts += counts[0]
         total_forfeits += counts[1]
         total_wins = update(total_wins, wins)
@@ -122,8 +131,7 @@ def play_matches(cpu_agents, test_agents, num_matches):
     if total_forfeits:
         print(("\nYour ID search forfeited {} games while there were still " +
                "legal moves available to play.\n").format(total_forfeits))
-
-
+    return(winrecords)
 def main():
 
     # Define two agents to compare -- these agents will play from the same
@@ -150,8 +158,20 @@ def main():
     print("{:^74}".format("*************************"))
     print("{:^74}".format("Playing Matches"))
     print("{:^74}".format("*************************"))
-    play_matches(cpu_agents, test_agents, NUM_MATCHES)
+    winrecords = play_matches(cpu_agents, test_agents, NUM_MATCHES)
 
+    import json
+
+    sdj = json.dumps(search_depths)
+    wrc = json.dumps(winrecords)
+
+    with open('search_depth3origo8o9.info', 'w') as f:
+        f.write('custom1: legal_move_primary custom2: legal_move_primary_opp08 custom3: legal_move_primary_opp09')
+    with open('search_depth3orig0809.json', 'w') as f:
+        f.write(sdj)
+    with open('search_depth3origWins0809.json', 'w') as f:
+        f.write(wrc)
+    pass
 
 if __name__ == "__main__":
     main()
