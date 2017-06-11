@@ -306,6 +306,8 @@ class AlphaBetaPlayer(IsolationPlayer):
     make sure it returns a good move before the search time limit expires.
     """
 
+    reached_depth = 0
+
     def get_move(self, game, time_left):
         self.time_left = lambda: time_left() - self.TIMER_THRESHOLD
 
@@ -315,7 +317,8 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         search_depth = 1
         return_move = (-1, -1)
-        while True: # self.search_depth >= search_depth:
+        while search_depth <= self.reached_depth + 2:
+            self.reached_depth = 0
             try:
                 # The try/except block will automatically catch the exception
                 # raised when the timer is about to expire.
@@ -343,21 +346,24 @@ class AlphaBetaPlayer(IsolationPlayer):
         game.record_search_depth(search_depth - 1)
         return return_move
 
-    def recursive_alphabeta(self, game, depth, alpha, beta, is_max):
+    def recursive_alphabeta(self, game, depth, max_depth, alpha, beta, is_max):
         if self.time_left() < 0:
             # print('Raising SearchTimeout, time left:{}'.format(self.time_left()))
             raise SearchTimeout
-        if depth <= 1:
+        if depth >= max_depth:
+            self.reached_depth = max(self.reached_depth, depth)
             return self.score(game, self)
 
         legal_moves = game.get_legal_moves()
         if not legal_moves:
+            self.reached_depth = max(self.reached_depth, depth)
             return float('-inf') if is_max else float('inf')
 
         running_score = float('inf') * ((-1) ** float(is_max))
         for legal_move in legal_moves:
             recursive_score = self.recursive_alphabeta(game=game.forecast_move(legal_move),
-                                                       depth=depth - 1,
+                                                       depth=depth + 1,
+                                                       max_depth=max_depth,
                                                        alpha=alpha,
                                                        beta=beta,
                                                        is_max=(not is_max))
@@ -369,6 +375,7 @@ class AlphaBetaPlayer(IsolationPlayer):
                 beta = min(beta, running_score)
             if beta <= alpha:
                 break
+        self.reached_depth = max(self.reached_depth, depth)
         return running_score
 
 
@@ -383,7 +390,8 @@ class AlphaBetaPlayer(IsolationPlayer):
         max_score = float('-inf')
         for legal_move in legal_moves:
             score = self.recursive_alphabeta(game=game.forecast_move(legal_move),
-                                             depth=depth,
+                                             depth=1,
+                                             max_depth=depth,
                                              alpha=max_score,
                                              beta=beta,
                                              is_max=False)
