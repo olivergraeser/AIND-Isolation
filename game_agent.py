@@ -144,11 +144,11 @@ def custom_score(game, player: 'IsolationPlayer') ->float:
 
 def custom_score_2(game, player):
 
-    return legal_move_primary_opp08(game, player)
+    return legal_move_primary_opp11(game, player)
 
 def custom_score_3(game, player):
 
-    return legal_move_primary_opp09(game, player)
+    return legal_move_primary_opp12(game, player)
 
 class IsolationPlayer:
 
