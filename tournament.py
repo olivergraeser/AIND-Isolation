@@ -165,11 +165,11 @@ def main():
     sdj = json.dumps(search_depths)
     wrc = json.dumps(winrecords)
 
-    with open('search_depth3orig1112.info', 'w') as f:
+    with open('search_depth3origrelsumlpmi.info', 'w') as f:
         f.write('custom1: legal_move_primary custom2: legal_move_primary_opp08 custom3: legal_move_primary_opp09')
-    with open('search_depth3orig1112.json', 'w') as f:
+    with open('search_depth3origrelsumlpmi.json', 'w') as f:
         f.write(sdj)
-    with open('search_depth3origWins1112.json', 'w') as f:
+    with open('search_depth3origWinsrelsumlpmi.json', 'w') as f:
         f.write(wrc)
     pass
 
