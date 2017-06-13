@@ -144,15 +144,16 @@ def custom_score(game, player: 'IsolationPlayer') ->float:
 
 def custom_score_2(game, player):
 
-    return legal_move_primary_relsum(game, player)
+    #return legal_move_primary_relsum(game, player)
+    return legal_move_primary_opp11(game, player)
 
 def custom_score_3(game, player):
-
-    return legal_move_primary(game, player) + moves_intersect(game=game)
+    return legal_move_primary_opp12(game, player)
+#    return legal_move_primary(game, player) + moves_intersect(game=game)
 
 class IsolationPlayer:
 
-    def __init__(self, search_depth=3, score_fn=custom_score, timeout=10., name=None):
+    def __init__(self, search_depth=100, score_fn=custom_score, timeout=10., name=None):
         self.search_depth = search_depth
         self.score = score_fn
         self.time_left = None
