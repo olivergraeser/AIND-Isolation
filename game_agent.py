@@ -178,6 +178,7 @@ class MinimaxPlayer(IsolationPlayer):
         depth = 1
         try:
             while depth <= self.search_depth and depth <= self.reached_depth + 2:
+                self.reached_depth = 0
                 best_move = self.minimax(game, depth)
                 depth += 1
 
