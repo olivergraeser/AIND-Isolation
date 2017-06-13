@@ -166,6 +166,7 @@ class MinimaxPlayer(IsolationPlayer):
     search. You must finish and test this player to make sure it properly uses
     minimax to return a good move before the search time limit expires.
     """
+    reached_depth = 0
 
     def get_move(self, game, time_left):
 
@@ -192,15 +193,17 @@ class MinimaxPlayer(IsolationPlayer):
         return move
 
 
-    def my_minimax(self, game, depth, maximizer):
+    def my_minimax(self, game, maxdepth, maximizer, depth=0):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        if depth == 0:
+        if depth >= maxdepth:
+            self.reached_depth = max(self.reached_depth, depth)
             return self.score(game, self), (-1, -1)
 
         available_my_moves = game.get_legal_moves()
         if len(available_my_moves) == 0:
+            self.reached_depth = max(self.reached_depth, depth)
             return self.score(game, self), (-1, -1)
 
         next_move = (-1, -1)
@@ -209,7 +212,7 @@ class MinimaxPlayer(IsolationPlayer):
             utility_score = float("-inf")
             for move in available_my_moves:
                 new_game = game.forecast_move(move)
-                next_score, _ = self.my_minimax(new_game, depth - 1, maximizer)
+                next_score, _ = self.my_minimax(new_game, maxdepth, maximizer, depth=depth+1)
                 if utility_score <= next_score:
                     utility_score = next_score
                     next_move = move
@@ -220,7 +223,7 @@ class MinimaxPlayer(IsolationPlayer):
             utility_score = float("inf")
             for move in available_my_moves:
                 new_game = game.forecast_move(move)
-                next_score, _ = self.my_minimax(new_game, depth - 1, maximizer)
+                next_score, _ = self.my_minimax(new_game, maxdepth, maximizer, depth=depth+1)
                 if utility_score >= next_score:
                     utility_score = next_score
                     next_move = move
