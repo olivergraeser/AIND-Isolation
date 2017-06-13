@@ -168,33 +168,7 @@ class MinimaxPlayer(IsolationPlayer):
     """
 
     def get_move(self, game, time_left):
-        """Search for the best move from the available legal moves and return a
-        result before the time limit expires.
 
-        **************  YOU DO NOT NEED TO MODIFY THIS FUNCTION  *************
-
-        For fixed-depth search, this function simply wraps the call to the
-        minimax method, but this method provides a common interface for all
-        Isolation agents, and you will replace it in the AlphaBetaPlayer with
-        iterative deepening search.
-
-        Parameters
-        ----------
-        game : `isolation.Board`
-            An instance of `isolation.Board` encoding the current state of the
-            game (e.g., player locations and blocked cells).
-
-        time_left : callable
-            A function that returns the number of milliseconds left in the
-            current turn. Returning with any less than 0 ms remaining forfeits
-            the game.
-
-        Returns
-        -------
-        (int, int)
-            Board coordinates corresponding to a legal move; may return
-            (-1, -1) if there are no available legal moves.
-        """
         self.time_left = time_left
 
         # Initialize the best move so that this function returns something
@@ -202,7 +176,7 @@ class MinimaxPlayer(IsolationPlayer):
         best_move = (-1, -1)
         depth = 1
         try:
-            while depth <= self.search_depth:
+            while depth <= self.search_depth and depth <= self.reached_depth + 2:
                 best_move = self.minimax(game, depth)
                 depth += 1
 
@@ -396,7 +370,7 @@ class AlphaBetaPlayer(IsolationPlayer):
                                              alpha=max_score,
                                              beta=beta,
                                              is_max=False)
-            if score > max_score or (max_score == float('-inf')):
+            if score >= max_score or (max_score == float('-inf')):
                 max_score = score
                 selected_move = legal_move
         if max_score == float('inf'):
