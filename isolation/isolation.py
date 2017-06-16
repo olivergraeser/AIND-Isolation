@@ -297,10 +297,15 @@ class Board(object):
             (e.g., timeout or invalid move).
         """
         move_history = []
-
+        search_depth_history = []
+        board_state_history = []
+        time_left_history = []
         time_millis = lambda: 1000 * timeit.default_timer()
 
         while True:
+
+            if self.active_player == self._player_2:
+                self.active_player.search_depth = self._search_depth
 
             legal_player_moves = self.get_legal_moves()
             game_copy = self.copy()
@@ -311,17 +316,28 @@ class Board(object):
             self._search_depth = game_copy._search_depth
             move_end = time_left()
 
+            search_depth_history.append(self._search_depth)
+            move_history.append(list(curr_move))
+            board_state_history.append(copy(self._board_state))
+            time_left_history.append(move_end)
+            game_info = {
+                'search_depth_history': search_depth_history,
+                'move_history': move_history,
+                'board_state_history': board_state_history,
+                'time_left_history': time_left_history
+            }
+
             if curr_move is None:
                 curr_move = Board.NOT_MOVED
 
             if move_end < 0:
-                return self._inactive_player, move_history, "timeout", self._search_depth
+
+                return self._inactive_player, move_history, "timeout", self._search_depth, game_info
 
             if curr_move not in legal_player_moves:
                 if len(legal_player_moves) > 0:
-                    return self._inactive_player, move_history, "forfeit", self._search_depth
-                return self._inactive_player, move_history, "illegal move", self._search_depth
+                    return self._inactive_player, move_history, "forfeit", self._search_depth, game_info
+                return self._inactive_player, move_history, "illegal move", self._search_depth, game_info
 
-            move_history.append(list(curr_move))
 
             self.apply_move(curr_move)

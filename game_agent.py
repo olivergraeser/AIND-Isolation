@@ -171,9 +171,6 @@ class MinimaxPlayer(IsolationPlayer):
     def get_move(self, game, time_left):
 
         self.time_left = time_left
-
-        # Initialize the best move so that this function returns something
-        # in case the search fails due to timeout
         best_move = (-1, -1)
         depth = 1
         try:
