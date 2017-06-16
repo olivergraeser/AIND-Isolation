@@ -304,8 +304,8 @@ class Board(object):
 
         while True:
 
-            if self.active_player == self._player_2 and self._search_depth_history:
-                self.active_player.search_depth = self._search_depth_history[-1][1]
+            #if self.active_player == self._player_2 and self._search_depth_history:
+            #    self.active_player.search_depth = self._search_depth_history[-1]
 
             legal_player_moves = self.get_legal_moves()
             game_copy = self.copy()
