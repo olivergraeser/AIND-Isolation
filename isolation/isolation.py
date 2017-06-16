@@ -312,7 +312,8 @@ class Board(object):
 
             move_start = time_millis()
             time_left = lambda : time_limit - (time_millis() - move_start)
-            curr_move = self._active_player.get_move(game_copy, time_left)
+            cm = self._active_player.get_move(game_copy, time_left)
+            curr_move, search_depth = cm
             self._search_depth_history = game_copy._search_depth_history
             move_end = time_left()
 

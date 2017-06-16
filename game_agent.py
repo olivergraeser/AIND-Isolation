@@ -170,12 +170,12 @@ class MinimaxPlayer(IsolationPlayer):
 
     def get_move(self, game, time_left):
 
+        self.reached_depth = 0
         self.time_left = time_left
         best_move = (-1, -1)
         depth = 1
         try:
             while depth <= self.search_depth and depth <= self.reached_depth + 2:
-                self.reached_depth = 0
                 best_move = self.minimax(game, depth)
                 depth += 1
 
@@ -183,8 +183,7 @@ class MinimaxPlayer(IsolationPlayer):
             pass  # Handle any actions required after timeout as needed
 
         # Return the best move from the last completed search iteration
-        game.record_search_depth(depth - 1)
-        return best_move
+        return best_move, depth
 
     def minimax(self, game, depth):
         v, move = self.my_minimax(game, depth, True)
@@ -290,15 +289,15 @@ class AlphaBetaPlayer(IsolationPlayer):
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
 
-
-        search_depth = 1
+        self.reached_depth = 0
+        depth = 1
         return_move = (-1, -1)
-        while search_depth <= self.reached_depth + 2:
+        while depth <= self.reached_depth + 2:
             self.reached_depth = 0
             try:
                 # The try/except block will automatically catch the exception
                 # raised when the timer is about to expire.
-                move = self.alphabeta(game, search_depth)
+                move = self.alphabeta(game, depth)
                 if move == (-1, -1):
                     #print('Existential Crisis after {} moves with {}ms left'.format(search_depth, self.time_left()))
                     break
@@ -308,19 +307,16 @@ class AlphaBetaPlayer(IsolationPlayer):
                 #    return return_move
                 else:
                     return_move = move
-                search_depth += 1
+                depth += 1
 
             except SearchTimeout:
                 #print('timeing out at search depth {} at time {}'.format(search_depth - 1, self.time_left()))
-                game.record_search_depth(search_depth - 1)
-                return return_move
+                return return_move, depth - 1
             except FoundWinningMoveException as fwme:
-                game.record_search_depth(search_depth - 1)
-                return fwme.move
+                return fwme.move, depth
 
         # Return the best move from the last completed search iteration
-        game.record_search_depth(search_depth - 1)
-        return return_move
+        return return_move, depth - 1
 
     def recursive_alphabeta(self, game, depth, max_depth, alpha, beta, is_max):
         if self.time_left() < 0:
