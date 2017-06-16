@@ -23,7 +23,7 @@ from sample_players import (RandomPlayer, open_move_score,
 from game_agent import (MinimaxPlayer, AlphaBetaPlayer, custom_score,
                         custom_score_2, custom_score_3)
 
-NUM_MATCHES = 10  # number of matches against each opponent
+NUM_MATCHES = 1  # number of matches against each opponent
 TIME_LIMIT = 150  # number of milliseconds before timeout
 
 DESCRIPTION = """
@@ -37,6 +37,7 @@ game_agent.py.
 Agent = namedtuple("Agent", ["player", "name"])
 
 search_depths = list()
+game_infos = list()
 
 def play_round(cpu_agent, test_agents, win_counts, num_matches):
     """Compare the test agents to the cpu agent in "fair" matches.
@@ -62,11 +63,12 @@ def play_round(cpu_agent, test_agents, win_counts, num_matches):
 
         # play all games and tally the results
         for game in games:
-            winner, _, termination, search_depth = game.play(time_limit=TIME_LIMIT)
+            winner, _, termination, search_depth, game_info = game.play(time_limit=TIME_LIMIT)
             win_counts[winner] += 1
             search_depths.append(((str(game._player_1), str(game._player_1.score)),
                                   (str(game._player_2), str(game._player_2.score)),
                                   search_depth))
+            game_infos.append(game_info)
             if termination == "timeout":
                 timeout_count += 1
             elif termination == "forfeit":
@@ -164,9 +166,12 @@ def main():
 
     sdj = json.dumps(search_depths)
     wrc = json.dumps(winrecords)
+    gif = json.dumps(game_infos)
 
     with open('search_depth100orig1112.info', 'w') as f:
         f.write('custom1: legal_move_primary custom2: legal_move_primary_opp08 custom3: legal_move_primary_opp09')
+    with open('search_depth100orig1112.histjson', 'w') as f:
+        f.write(gif)
     with open('search_depth100orig1112.json', 'w') as f:
         f.write(sdj)
     with open('search_depth100origWins1112.json', 'w') as f:
