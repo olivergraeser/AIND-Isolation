@@ -321,7 +321,7 @@ class Board(object):
             board_state_history.append(copy(self._board_state))
             time_left_history.append(move_end)
             game_info = {
-                'search_depth_history': self.search_depth_history,
+                'search_depth_history': self._search_depth_history,
                 'move_history': move_history,
                 'board_state_history': board_state_history,
                 'time_left_history': time_left_history
