@@ -199,12 +199,12 @@ class MinimaxPlayer(IsolationPlayer):
 
         if depth >= maxdepth:
             self.reached_depth = max(self.reached_depth, depth)
-            return self.score(game, self), (-1, -1)
+            return self.score(game, self), (-1, -1), list()
 
         available_my_moves = game.get_legal_moves()
         if len(available_my_moves) == 0:
             self.reached_depth = max(self.reached_depth, depth)
-            return self.score(game, self), (-1, -1)
+            return self.score(game, self), (-1, -1), list()
 
         score_list = list()
 
