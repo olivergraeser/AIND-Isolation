@@ -168,15 +168,19 @@ class MinimaxPlayer(IsolationPlayer):
     """
     reached_depth = 0
     tree_search = list()
+    tree_search_dict = dict()
+
 
     def get_move(self, game, time_left, print_score=False):
 
         self.reached_depth = 0
+        self.tree_search = list()
         self.time_left = time_left
         best_move = (-1, -1)
         depth = 1
         try:
             while depth <= self.search_depth and depth <= self.reached_depth + 2:
+                self.tree_search_dict[depth-1] = self.tree_search
                 self.tree_search = list()
                 best_move = self.minimax(game, depth, print_score)
                 depth += 1
@@ -300,7 +304,7 @@ class AlphaBetaPlayer(IsolationPlayer):
     """
 
     reached_depth = 0
-    tree_search = list()
+    tree_search_dict = dict()
     temp_tree_search = list()
 
     def get_move(self, game, time_left, print_score=False):
@@ -310,11 +314,13 @@ class AlphaBetaPlayer(IsolationPlayer):
         # in case the search fails due to timeout
 
         self.reached_depth = 0
+        self.temp_tree_search = list()
+
         depth = 1
         return_move = (-1, -1)
         while depth <= self.reached_depth + 2:
             self.reached_depth = 0
-            self.tree_search = self.temp_tree_search
+            self.tree_search_dict[depth-1] = self.temp_tree_search
             self.temp_tree_search = list()
             try:
                 # The try/except block will automatically catch the exception
