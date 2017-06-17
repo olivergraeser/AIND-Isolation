@@ -183,7 +183,7 @@ class MinimaxPlayer(IsolationPlayer):
             pass  # Handle any actions required after timeout as needed
 
         # Return the best move from the last completed search iteration
-        return best_move, depth
+        return best_move, depth - 1
 
     def minimax(self, game, depth, print_score):
         max_score, selected_move, score_list = self.my_minimax(game, depth, True, print_stack=print_score)
