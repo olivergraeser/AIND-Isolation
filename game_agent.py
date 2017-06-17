@@ -218,7 +218,7 @@ class MinimaxPlayer(IsolationPlayer):
                 if utility_score < next_score or utility_score == float("-inf"):
                     utility_score = next_score
                     next_move = move
-                score_list.append(move, next_score)
+                score_list.append((move, next_score))
 
         else:
             maximizer = True
@@ -342,7 +342,7 @@ class AlphaBetaPlayer(IsolationPlayer):
             if score > max_score or (max_score == float('-inf')):
                 max_score = score
                 selected_move = legal_move
-            score_list.append(legal_move, score)
+            score_list.append((legal_move, score))
         if print_score:
             print('AlphaBeta with depth {} recommends move {} with score {}. Trace: {}'
                   .format(depth, selected_move, max_score, score_list))
