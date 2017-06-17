@@ -206,6 +206,7 @@ class MinimaxPlayer(IsolationPlayer):
 
         available_my_moves = game.get_legal_moves()
         if len(available_my_moves) == 0:
+            print(score_evals)
             self.reached_depth = max(self.reached_depth, depth)
             return self.score(game, self), (-1, -1), list()
 
