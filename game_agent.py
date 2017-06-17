@@ -186,14 +186,14 @@ class MinimaxPlayer(IsolationPlayer):
         return best_move, depth
 
     def minimax(self, game, depth, print_score):
-        max_score, selected_move, score_list = self.my_minimax(game, depth, True)
+        max_score, selected_move, score_list = self.my_minimax(game, depth, True, print_stack=print_score)
         if print_score:
             print('Minimax with depth {} recommends move {} with score {}. Trace: {}'
                   .format(depth, selected_move, max_score, score_list))
         return selected_move
 
 
-    def my_minimax(self, game, maxdepth, maximizer, depth=0, score_evals=None):
+    def my_minimax(self, game, maxdepth, maximizer, depth=0, score_evals=None, print_stack=False):
         if not score_evals:
             score_evals=list()
         if self.time_left() < self.TIMER_THRESHOLD:
@@ -202,13 +202,15 @@ class MinimaxPlayer(IsolationPlayer):
         if depth >= maxdepth:
             self.reached_depth = max(self.reached_depth, depth)
             finscore = self.score(game, self)
-            print(finscore, score_evals)
+            if print_stack:
+                print(finscore, score_evals)
             return finscore, (-1, -1), list()
 
         available_my_moves = game.get_legal_moves()
         if len(available_my_moves) == 0:
             finscore = self.score(game, self)
-            print(finscore, score_evals)
+            if print_stack:
+                print(finscore, score_evals)
             self.reached_depth = max(self.reached_depth, depth)
             return finscore, (-1, -1), list()
 
