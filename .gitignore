@@ -105,3 +105,7 @@ ENV/
 *.json
 
 *.info
+
+*.histjson
+
+search_depth100orig1112.histjson

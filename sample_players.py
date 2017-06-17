@@ -136,7 +136,7 @@ def center_score(game, player):
 
 class RandomPlayer():
     """Player that chooses a move randomly."""
-
+    score = None
     def get_move(self, game, time_left):
         """Randomly select a move from the available legal moves.
 
@@ -159,8 +159,8 @@ class RandomPlayer():
         """
         legal_moves = game.get_legal_moves()
         if not legal_moves:
-            return (-1, -1)
-        return legal_moves[randint(0, len(legal_moves) - 1)]
+            return (-1, -1), 0
+        return legal_moves[randint(0, len(legal_moves) - 1)], 0
 
 
 class GreedyPlayer():
@@ -195,9 +195,9 @@ class GreedyPlayer():
         """
         legal_moves = game.get_legal_moves()
         if not legal_moves:
-            return (-1, -1)
+            return (-1, -1), 0
         _, move = max([(self.score(game.forecast_move(m), self), m) for m in legal_moves])
-        return move
+        return move, 0
 
 
 class HumanPlayer():
@@ -233,7 +233,7 @@ class HumanPlayer():
         """
         legal_moves = game.get_legal_moves()
         if not legal_moves:
-            return (-1, -1)
+            return (-1, -1), 0
 
         print(game.to_string()) #display the board for the human player
         print(('\t'.join(['[%d] %s' % (i, str(move)) for i, move in enumerate(legal_moves)])))
@@ -250,7 +250,7 @@ class HumanPlayer():
             except ValueError:
                 print('Invalid index! Try again.')
 
-        return legal_moves[index]
+        return legal_moves[index],0
 
 
 if __name__ == "__main__":

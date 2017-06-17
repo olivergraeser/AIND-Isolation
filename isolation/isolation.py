@@ -46,6 +46,7 @@ class Board(object):
         self._board_state = [Board.BLANK] * (width * height + 3)
         self._board_state[-1] = Board.NOT_MOVED
         self._board_state[-2] = Board.NOT_MOVED
+        self._search_depth_history = list()
 
     def hash(self):
         return str(self._board_state).__hash__()
@@ -90,6 +91,7 @@ class Board(object):
         new_board._active_player = self._active_player
         new_board._inactive_player = self._inactive_player
         new_board._board_state = copy(self._board_state)
+        new_board._search_depth_history = copy(self._search_depth_history)
         return new_board
 
     def forecast_move(self, move):
@@ -191,6 +193,9 @@ class Board(object):
         self._active_player, self._inactive_player = self._inactive_player, self._active_player
         self.move_count += 1
 
+    def record_search_depth(self, depth):
+        self._search_depth_history.append((self._board_state[-3] + 1, depth))
+
     def is_winner(self, player):
         """ Test whether the specified player has won the game. """
         return player == self._inactive_player and not self.get_legal_moves(self._active_player)
@@ -241,7 +246,7 @@ class Board(object):
         valid_moves = [(r + dr, c + dc) for dr, dc in directions
                        if self.move_is_legal((r + dr, c + dc))]
         random.shuffle(valid_moves)
-        return valid_moves
+        return sorted(valid_moves)
 
     def print_board(self):
         """DEPRECATED - use Board.to_string()"""
@@ -292,30 +297,48 @@ class Board(object):
             (e.g., timeout or invalid move).
         """
         move_history = []
-
+        search_depth_history = []
+        board_state_history = []
+        time_left_history = []
         time_millis = lambda: 1000 * timeit.default_timer()
 
         while True:
+
+            #if self.active_player == self._player_2 and self._search_depth_history:
+            #    self.active_player.search_depth = self._search_depth_history[-1]
 
             legal_player_moves = self.get_legal_moves()
             game_copy = self.copy()
 
             move_start = time_millis()
             time_left = lambda : time_limit - (time_millis() - move_start)
-            curr_move = self._active_player.get_move(game_copy, time_left)
+            cm = self._active_player.get_move(game_copy, time_left)
+            curr_move, search_depth = cm
+            self._search_depth_history.append(search_depth)
             move_end = time_left()
+
+            move_history.append(list(curr_move))
+            board_state_history.append(copy(self._board_state))
+            time_left_history.append(move_end)
+            game_info = {
+                'search_depth_history': self._search_depth_history,
+                'move_history': move_history,
+                'board_state_history': board_state_history,
+                'time_left_history': time_left_history
+            }
 
             if curr_move is None:
                 curr_move = Board.NOT_MOVED
 
             if move_end < 0:
-                return self._inactive_player, move_history, "timeout"
+                game_info['search_depth_history'] = copy(self._search_depth_history)
+                return self._inactive_player, move_history, "timeout", self._search_depth_history, game_info
 
             if curr_move not in legal_player_moves:
+                game_info['search_depth_history'] = copy(self._search_depth_history)
                 if len(legal_player_moves) > 0:
-                    return self._inactive_player, move_history, "forfeit"
-                return self._inactive_player, move_history, "illegal move"
+                    return self._inactive_player, move_history, "forfeit", self._search_depth_history, game_info
+                return self._inactive_player, move_history, "illegal move", self._search_depth_history, game_info
 
-            move_history.append(list(curr_move))
 
             self.apply_move(curr_move)
