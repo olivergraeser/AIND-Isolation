@@ -311,7 +311,7 @@ class AlphaBetaPlayer(IsolationPlayer):
 
             except SearchTimeout:
                 #print('timeing out at search depth {} at time {}'.format(search_depth - 1, self.time_left()))
-                return return_move, depth - 1
+                return return_move, depth
             except FoundWinningMoveException as fwme:
                 return fwme.move, depth
 
