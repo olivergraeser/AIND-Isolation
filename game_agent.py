@@ -188,7 +188,7 @@ class MinimaxPlayer(IsolationPlayer):
     def minimax(self, game, depth, print_score):
         max_score, selected_move = self.my_minimax(game, depth, True)
         if print_score:
-            print('AlphaBeta with depth {} recommends move {} with score {}'
+            print('Minimax with depth {} recommends move {} with score {}'
                   .format(depth, selected_move, max_score))
         return selected_move
 
