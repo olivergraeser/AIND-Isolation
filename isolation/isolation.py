@@ -246,7 +246,7 @@ class Board(object):
         valid_moves = [(r + dr, c + dc) for dr, dc in directions
                        if self.move_is_legal((r + dr, c + dc))]
         random.shuffle(valid_moves)
-        return valid_moves
+        return sorted(valid_moves)
 
     def print_board(self):
         """DEPRECATED - use Board.to_string()"""
