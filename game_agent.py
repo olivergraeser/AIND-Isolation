@@ -167,6 +167,7 @@ class MinimaxPlayer(IsolationPlayer):
     minimax to return a good move before the search time limit expires.
     """
     reached_depth = 0
+    tree_search = list()
 
     def get_move(self, game, time_left, print_score=False):
 
@@ -176,6 +177,7 @@ class MinimaxPlayer(IsolationPlayer):
         depth = 1
         try:
             while depth <= self.search_depth and depth <= self.reached_depth + 2:
+                self.tree_search = list()
                 best_move = self.minimax(game, depth, print_score)
                 depth += 1
 
@@ -203,14 +205,14 @@ class MinimaxPlayer(IsolationPlayer):
             self.reached_depth = max(self.reached_depth, depth)
             finscore = self.score(game, self)
             if print_stack:
-                print(finscore, score_evals)
+                self.tree_search.append((finscore, score_evals))
             return finscore, (-1, -1), list()
 
         available_my_moves = game.get_legal_moves()
         if len(available_my_moves) == 0:
             finscore = self.score(game, self)
             if print_stack:
-                print(finscore, score_evals)
+                self.tree_search.append((finscore, score_evals))
             self.reached_depth = max(self.reached_depth, depth)
             return finscore, (-1, -1), list()
 
@@ -298,6 +300,8 @@ class AlphaBetaPlayer(IsolationPlayer):
     """
 
     reached_depth = 0
+    tree_search = list()
+    temp_tree_search = list()
 
     def get_move(self, game, time_left, print_score=False):
         self.time_left = lambda: time_left() - self.TIMER_THRESHOLD
@@ -310,6 +314,8 @@ class AlphaBetaPlayer(IsolationPlayer):
         return_move = (-1, -1)
         while depth <= self.reached_depth + 2:
             self.reached_depth = 0
+            self.tree_search = self.temp_tree_search
+            self.temp_tree_search = list()
             try:
                 # The try/except block will automatically catch the exception
                 # raised when the timer is about to expire.
@@ -348,7 +354,8 @@ class AlphaBetaPlayer(IsolationPlayer):
                                              max_depth=depth,
                                              alpha=max_score,
                                              beta=beta,
-                                             is_max=False)
+                                             is_max=False,
+                                             tree_path=[legal_move])
             if score > max_score or (max_score == float('-inf')):
                 max_score = score
                 selected_move = legal_move
@@ -360,18 +367,24 @@ class AlphaBetaPlayer(IsolationPlayer):
             raise FoundWinningMoveException(move=selected_move)
         return selected_move#, max_score == float('inf')
 
-    def recursive_alphabeta(self, game, depth, max_depth, alpha, beta, is_max):
+    def recursive_alphabeta(self, game, depth, max_depth, alpha, beta, is_max, tree_path=None):
+        if tree_path is None:
+            tree_path = list()
         if self.time_left() < 0:
             # print('Raising SearchTimeout, time left:{}'.format(self.time_left()))
             raise SearchTimeout
         if depth >= max_depth:
             self.reached_depth = max(self.reached_depth, depth)
-            return self.score(game, self)
+            finscore = self.score(game, self)
+            self.temp_tree_search.append((finscore,tree_path))
+            return finscore
 
         legal_moves = game.get_legal_moves()
         if not legal_moves:
             self.reached_depth = max(self.reached_depth, depth)
-            return float('-inf') if is_max else float('inf')
+            finscore = self.score(game, self)
+            self.temp_tree_search.append((finscore,tree_path))
+            return finscore
 
         running_score = float('inf') * ((-1) ** float(is_max))
         for legal_move in legal_moves:
@@ -380,7 +393,8 @@ class AlphaBetaPlayer(IsolationPlayer):
                                                        max_depth=max_depth,
                                                        alpha=alpha,
                                                        beta=beta,
-                                                       is_max=(not is_max))
+                                                       is_max=(not is_max),
+                                                       tree_path=tree_path + [legal_move])
             if is_max:
                 running_score = max(running_score, recursive_score)
                 alpha = max(alpha, running_score)
