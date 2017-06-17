@@ -223,7 +223,7 @@ class MinimaxPlayer(IsolationPlayer):
             for move in available_my_moves:
                 new_game = game.forecast_move(move)
                 next_score, _, __ = self.my_minimax(new_game, maxdepth, maximizer, depth=depth+1,
-                                                score_evals=score_evals + [move])
+                                                score_evals=score_evals + [move], print_stack=print_stack)
                 if utility_score < next_score or utility_score == float("-inf"):
                     utility_score = next_score
                     next_move = move
@@ -235,7 +235,7 @@ class MinimaxPlayer(IsolationPlayer):
             for move in available_my_moves:
                 new_game = game.forecast_move(move)
                 next_score, _, __ = self.my_minimax(new_game, maxdepth, maximizer, depth=depth+1,
-                                                score_evals=score_evals + [move])
+                                                score_evals=score_evals + [move], print_stack=print_stack)
                 if utility_score > next_score or utility_score == float("inf"):
                     utility_score = next_score
                     next_move = move
