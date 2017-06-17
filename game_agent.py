@@ -186,10 +186,10 @@ class MinimaxPlayer(IsolationPlayer):
         return best_move, depth
 
     def minimax(self, game, depth, print_score):
-        max_score, selected_move = self.my_minimax(game, depth, True)
+        max_score, selected_move, score_list = self.my_minimax(game, depth)
         if print_score:
-            print('Minimax with depth {} recommends move {} with score {}'
-                  .format(depth, selected_move, max_score))
+            print('Minimax with depth {} recommends move {} with score {}. Trace: {}'
+                  .format(depth, selected_move, max_score, score_list))
         return selected_move
 
 
@@ -206,28 +206,31 @@ class MinimaxPlayer(IsolationPlayer):
             self.reached_depth = max(self.reached_depth, depth)
             return self.score(game, self), (-1, -1)
 
+        score_list = list()
+
         next_move = (-1, -1)
         if maximizer == True:  # Maximizing player
             maximizer = False
             utility_score = float("-inf")
             for move in available_my_moves:
                 new_game = game.forecast_move(move)
-                next_score, _ = self.my_minimax(new_game, maxdepth, maximizer, depth=depth+1)
+                next_score, _, __ = self.my_minimax(new_game, maxdepth, maximizer, depth=depth+1)
                 if utility_score < next_score or utility_score == float("-inf"):
                     utility_score = next_score
                     next_move = move
-            return utility_score, next_move
+                score_list.append(move, next_score)
 
         else:
             maximizer = True
             utility_score = float("inf")
             for move in available_my_moves:
                 new_game = game.forecast_move(move)
-                next_score, _ = self.my_minimax(new_game, maxdepth, maximizer, depth=depth+1)
+                next_score, _, __ = self.my_minimax(new_game, maxdepth, maximizer, depth=depth+1)
                 if utility_score > next_score or utility_score == float("inf"):
                     utility_score = next_score
                     next_move = move
-            return utility_score, next_move
+
+        return utility_score, next_move, score_list
 
     def minimax2(self, game, depth: int) -> (int, int):
 
@@ -328,6 +331,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         if not legal_moves:
             return selected_move
         max_score = float('-inf')
+        score_list=list()
         for legal_move in legal_moves:
             score = self.recursive_alphabeta(game=game.forecast_move(legal_move),
                                              depth=1,
@@ -338,9 +342,10 @@ class AlphaBetaPlayer(IsolationPlayer):
             if score > max_score or (max_score == float('-inf')):
                 max_score = score
                 selected_move = legal_move
+            score_list.append(legal_move, score)
         if print_score:
-            print('AlphaBeta with depth {} recommends move {} with score {}'
-                  .format(depth, selected_move, max_score))
+            print('AlphaBeta with depth {} recommends move {} with score {}. Trace: {}'
+                  .format(depth, selected_move, max_score, score_list))
         if max_score == float('inf'):
             raise FoundWinningMoveException(move=selected_move)
         return selected_move#, max_score == float('inf')
