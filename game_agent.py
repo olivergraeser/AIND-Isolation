@@ -193,12 +193,15 @@ class MinimaxPlayer(IsolationPlayer):
         return selected_move
 
 
-    def my_minimax(self, game, maxdepth, maximizer, depth=0):
+    def my_minimax(self, game, maxdepth, maximizer, depth=0, score_evals=None):
+        if not score_evals:
+            score_evals=list()
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
         if depth >= maxdepth:
             self.reached_depth = max(self.reached_depth, depth)
+            print(score_evals)
             return self.score(game, self), (-1, -1), list()
 
         available_my_moves = game.get_legal_moves()
@@ -214,7 +217,8 @@ class MinimaxPlayer(IsolationPlayer):
             utility_score = float("-inf")
             for move in available_my_moves:
                 new_game = game.forecast_move(move)
-                next_score, _, __ = self.my_minimax(new_game, maxdepth, maximizer, depth=depth+1)
+                next_score, _, __ = self.my_minimax(new_game, maxdepth, maximizer, depth=depth+1,
+                                                score_evals=score_evals + [move])
                 if utility_score < next_score or utility_score == float("-inf"):
                     utility_score = next_score
                     next_move = move
@@ -225,7 +229,8 @@ class MinimaxPlayer(IsolationPlayer):
             utility_score = float("inf")
             for move in available_my_moves:
                 new_game = game.forecast_move(move)
-                next_score, _, __ = self.my_minimax(new_game, maxdepth, maximizer, depth=depth+1)
+                next_score, _, __ = self.my_minimax(new_game, maxdepth, maximizer, depth=depth+1,
+                                                score_evals=score_evals + [move])
                 if utility_score > next_score or utility_score == float("inf"):
                     utility_score = next_score
                     next_move = move
