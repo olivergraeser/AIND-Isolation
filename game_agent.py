@@ -109,28 +109,28 @@ def legal_move_primary_opp(game, player, factor=1):
         return float(own_legal_moves - factor*opponent_legal_moves)
 
 def legal_move_primary_opp14(game, player):
-    return legal_move_primary_opp((game, player, 1.4))
+    return legal_move_primary_opp(game, player, 1.4)
 
 def legal_move_primary_opp13(game, player):
-    return legal_move_primary_opp((game, player, 1.3))
+    return legal_move_primary_opp(game, player, 1.3)
 
 def legal_move_primary_opp12(game, player):
-    return legal_move_primary_opp((game, player, 1.2))
+    return legal_move_primary_opp(game, player, 1.2)
 
 def legal_move_primary_opp11(game, player):
-    return legal_move_primary_opp((game, player, 1.1))
+    return legal_move_primary_opp(game, player, 1.1)
 
 def legal_move_primary_opp09(game, player):
-    return legal_move_primary_opp((game, player, .9))
+    return legal_move_primary_opp(game, player, .9)
 
 def legal_move_primary_opp08(game, player):
-    return legal_move_primary_opp((game, player, .8))
+    return legal_move_primary_opp(game, player, .8)
 
 def legal_move_primary_opp07(game, player):
-    return legal_move_primary_opp((game, player, .7))
+    return legal_move_primary_opp(game, player, .7)
 
 def legal_move_primary_opp06(game, player):
-    return legal_move_primary_opp((game, player, .6))
+    return legal_move_primary_opp(game, player, .6)
 
 def legal_move_primary_relsum(game, player):
     if len(game.get_legal_moves(game.active_player)) == 0:
