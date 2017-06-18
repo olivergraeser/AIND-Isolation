@@ -32,7 +32,7 @@ class Board(object):
     BLANK = 0
     NOT_MOVED = None
 
-    def __init__(self, player_1, player_2, width=7, height=7):
+    def __init__(self, player_1, player_2, width=7, height=7, record_game=False):
         self.width = width
         self.height = height
         self.move_count = 0
@@ -40,12 +40,18 @@ class Board(object):
         self._player_2 = player_2
         self._active_player = player_1
         self._inactive_player = player_2
+        self._record_game = record_game
 
         # The last 3 entries of the board state includes initiative (0 for
         # player 1, 1 for player 2) player 2 last move, and player 1 last move
         self._board_state = [Board.BLANK] * (width * height + 3)
         self._board_state[-1] = Board.NOT_MOVED
         self._board_state[-2] = Board.NOT_MOVED
+
+        if self._record_game:
+
+            self._player_1.record_tree = True
+            self._player_2.record_tree = True
 
     def hash(self):
         return str(self._board_state).__hash__()
@@ -309,13 +315,24 @@ class Board(object):
                 curr_move = Board.NOT_MOVED
 
             if move_end < 0:
-                return self._inactive_player, move_history, "timeout"
-
-            if curr_move not in legal_player_moves:
-                if len(legal_player_moves) > 0:
-                    return self._inactive_player, move_history, "forfeit"
-                return self._inactive_player, move_history, "illegal move"
+                reason = 'timeout'
+                break
+            elif curr_move not in legal_player_moves:
+                reason = 'forfeit' if len(legal_player_moves) > 0 else 'illegal move'
+                break
 
             move_history.append(list(curr_move))
 
             self.apply_move(curr_move)
+
+        if self._record_game:
+            game_info = {'player_1': self._player_1.search_information,
+                         'player_2': self._player_2.search_information,
+                         'winner': self._inactive_player,
+                         'reason': reason,
+                         'move_history': move_history}
+        else:
+            # yes, I know, bad style to return objects of different type
+            game_info = move_history
+
+        return self._inactive_player, game_info, reason
