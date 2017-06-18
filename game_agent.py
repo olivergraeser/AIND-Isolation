@@ -220,25 +220,45 @@ class MinimaxPlayer(IsolationPlayer):
         super().__init__(search_depth=search_depth, score_fn=score_fn, timeout=timeout, name=name)
 
     def get_move(self, game, time_left):
-        self.search_information = dict()
         self.time_left = lambda: time_left() - self.TIMER_THRESHOLD
 
         # Initialize the best move so that this function returns something
         # in case the search fails due to timeout
-        move = (-1, -1)
+        return_move = (-1, -1)
         score = float('-inf')
         search_depth = 1
+        search_history = dict()
+        count = 0
         try:
             while search_depth <= self.search_depth:
-                self.search_information[search_depth] = (move, score)
+                search_history[search_depth] = (return_move, score)
                 move, score = self.recursive_minimax(game, search_depth, True)
+                if score == float('inf'):
+                    raise FoundWinningMoveException(move=move)
+                elif score == float('-inf'):
+                    raise ExistentialCrisisException(move=move, score=score)
                 search_depth += 1
+                return_move = move
 
         except SearchTimeout:
             pass  # Handle any actions required after timeout as needed
+        except FoundWinningMoveException as fwme:
+            # prevents the agent from searching thousands of levels deep if the agent knows it will already win
+            # after three rounds
+            return_move = fwme.move
+            search_history[search_depth + 1] = (move, float('inf'))
+        except ExistentialCrisisException as ece:
+            # prevents the agent from searching thousands of levels deep if the agent knows it will already win
+            # after three rounds
+            search_history[search_depth + 1] = (move, float('-inf'))
 
         # Return the best move from the last completed search iteration
-        return move
+        if self.record_tree:
+            search_history['cnt'] = count
+            self.search_information[game.get_movecount() + 1] = search_history
+
+        # Return the best move from the last completed search iteration
+        return return_move
 
     def minimax(self, game, depth):
         move, _ = self.recursive_minimax(game, depth, True)
@@ -327,7 +347,6 @@ class AlphaBetaPlayer(IsolationPlayer):
         except ExistentialCrisisException as ece:
             #prevents the agent from searching thousands of levels deep if the agent knows it will already win
             #after three rounds
-            return_move = ece.move
             search_history[search_depth+1] = (return_move, float('-inf'))
 
 
