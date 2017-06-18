@@ -313,7 +313,7 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         # Return the best move from the last completed search iteration
         if self.record_tree:
-            self.search_information = search_history
+            self.search_information[game._board_state[-3]] = search_history
             self.search_information['cnt'] = count
         #print(time_left())
         return return_move

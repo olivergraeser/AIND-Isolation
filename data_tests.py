@@ -31,6 +31,9 @@ def play_round(cpu_agent, test_agent, num_matches):
     forfeit_count = dict()
     game_data = list()
     win_count = defaultdict(int)
+    timeout_count = defaultdict(int)
+    forfeit_count = defaultdict(int)
+
     for _ in range(num_matches):
 
         games = [Board(cpu_agent.player, test_agent.player, record_game=True),
