@@ -328,7 +328,7 @@ class Board(object):
         if self._record_game:
             game_info = {'player_1': self._player_1.search_information,
                          'player_2': self._player_2.search_information,
-                         'winner': self._inactive_player,
+                         'winner': str(self._inactive_player),
                          'reason': reason,
                          'move_history': move_history}
         else:

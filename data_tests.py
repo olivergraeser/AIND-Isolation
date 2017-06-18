@@ -33,8 +33,8 @@ def play_round(cpu_agent, test_agent, num_matches):
     win_count = defaultdict(int)
     for _ in range(num_matches):
 
-        games = [Board(cpu_agent.player, test_agent.player),
-                      Board(test_agent.player, cpu_agent.player)]
+        games = [Board(cpu_agent.player, test_agent.player, record_game=True),
+                      Board(test_agent.player, cpu_agent.player, record_game=True)]
         # initialize all games with a random move and response
         for _ in range(2):
             move = random.choice(games[0].get_legal_moves())
