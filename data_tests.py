@@ -12,7 +12,7 @@ from game_agent import (MinimaxPlayer, AlphaBetaPlayer, legal_move_primary, lega
                         legal_move_primary_relsum, legal_move_primary_opp13, legal_move_primary_opp14,
                         legal_move_primary_opp11, legal_move_primary_opp12, legal_move_primary_opp07,
                         legal_move_primary_opp08, legal_move_primary_opp09, legal_move_primary_opp06,
-                        moves_intersect)
+                        can_be_blocked)
 
 player_types = {'random': RandomPlayer,
                 'minimax': MinimaxPlayer,
@@ -32,7 +32,7 @@ score_functions = {'open': open_move_score,
                    'legal_move_primary_opp08': legal_move_primary_opp08,
                    'legal_move_primary_opp09': legal_move_primary_opp09,
                    'legal_move_primary_opp06': legal_move_primary_opp06,
-                   'peekabo':moves_intersect
+                   'peekaboo':can_be_blocked
                    }
 
 NUM_MATCHES = 5  # number of matches against each opponent
