@@ -278,6 +278,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         return_move = (-1, -1)
         score = float('-inf')
         search_history = dict()
+        count = 0
         try:
             while search_depth <= self.search_depth:
                 search_history[search_depth] = (return_move, score)
@@ -285,7 +286,8 @@ class AlphaBetaPlayer(IsolationPlayer):
                 # The try/except block will automatically catch the exception
                 # raised when the timer is about to expire.
                 if self.record_tree:
-                    move, score = self.rec_alphabeta(game, search_depth)
+                    move, score, count = self.rec_alphabeta(game, search_depth)
+                    #count: number of available moves right now
                 else:
                     move = self.alphabeta(game, search_depth)
                 if move == (-1, -1):
@@ -310,18 +312,21 @@ class AlphaBetaPlayer(IsolationPlayer):
 
 
         # Return the best move from the last completed search iteration
-        self.search_information = search_history
+        if self.record_tree:
+            self.search_information = search_history
+            self.search_information['cnt'] = count
         #print(time_left())
         return return_move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
-        move, score = self.rec_alphabeta(game=game, depth=depth, alpha=alpha, beta=beta)
+        move, score, count = self.rec_alphabeta(game=game, depth=depth, alpha=alpha, beta=beta)
         return move
 
     def rec_alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
 
         selected_move = (-1, -1)
         legal_moves = game.get_legal_moves()
+        move_count = 0 if not self.record_tree else len(legal_moves)
         max_score = float('-inf')
         if not legal_moves:
             pass
@@ -338,7 +343,7 @@ class AlphaBetaPlayer(IsolationPlayer):
             if max_score == float('inf'):
                 #The move I found will guarantee me to win. I do not need to search deeper
                 raise FoundWinningMoveException(move=selected_move)
-        return selected_move, max_score
+        return selected_move, max_score, move_count
 
     def recursive_alphabeta(self, game, depth, alpha, beta, is_max):
         if self.time_left() < 0:
