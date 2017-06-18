@@ -181,7 +181,8 @@ def custom_score_3(game, player):
 
 class IsolationPlayer:
 
-    def __init__(self, search_depth=100, score_fn=custom_score, timeout=10., name=None):
+    def __init__(self, search_depth=100, score_fn=custom_score, timeout=10., name=None, ignore_timeout=False):
+        self.ignore_timeout = ignore_timeout
         self.search_depth = search_depth
         self.score = score_fn
         self.time_left = None
@@ -333,7 +334,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         move_count = 0 if not self.record_tree else len(legal_moves)
         max_score = float('-inf')
         if not legal_moves:
-            pass
+            raise ExistentialCrisisException(move=selected_move, score=max_score)
         else:
             for legal_move in legal_moves:
                 score = self.recursive_alphabeta(game=game.forecast_move(legal_move),
