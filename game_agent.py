@@ -164,6 +164,8 @@ def can_be_blocked(game, player):
 
     return afraid_of_blocking * float(moves_intersect(game))
 
+def peekaboo(game, player):
+    return legal_move_primary(game, player) + can_be_blocked(game, player)/2
 
 def norm_center_distance(game, player):
     center_row = (float(game.height) - 1.) / 2.
@@ -171,11 +173,12 @@ def norm_center_distance(game, player):
     max_distance = center_row ** 2 + center_col ** 2
     player_row, player_col = game.get_player_location(player=player)
     oppo_row, oppo_col = game.get_player_location(player=game.get_opponent(player=player))
-    return (
-            (oppo_row-center_row) ** 2 + (oppo_col-center_col) ** 2 -
+    return ((oppo_row-center_row) ** 2 + (oppo_col-center_col) ** 2 -
             (player_row-center_row) ** 2 - (player_col-center_col) ** 2
             ) / max_distance
 
+def legal_primary_center(game, player):
+    return legal_move_primary(game, player) - norm_center_distance(game, player)
 
 def custom_score(game, player: 'IsolationPlayer') ->float:
 

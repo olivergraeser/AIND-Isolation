@@ -12,7 +12,7 @@ from game_agent import (MinimaxPlayer, AlphaBetaPlayer, legal_move_primary, lega
                         legal_move_primary_relsum, legal_move_primary_opp13, legal_move_primary_opp14,
                         legal_move_primary_opp11, legal_move_primary_opp12, legal_move_primary_opp07,
                         legal_move_primary_opp08, legal_move_primary_opp09, legal_move_primary_opp06,
-                        can_be_blocked)
+                        peekaboo, legal_primary_center)
 
 player_types = {'random': RandomPlayer,
                 'minimax': MinimaxPlayer,
@@ -32,7 +32,8 @@ score_functions = {'open': open_move_score,
                    'legal_move_primary_opp08': legal_move_primary_opp08,
                    'legal_move_primary_opp09': legal_move_primary_opp09,
                    'legal_move_primary_opp06': legal_move_primary_opp06,
-                   'peekaboo':can_be_blocked
+                   'peekaboo': peekaboo,
+                   'legal_primary_center': legal_primary_center
                    }
 
 NUM_MATCHES = 5  # number of matches against each opponent
@@ -125,12 +126,12 @@ def main():
                            opponent_id)
 
     data = play_matches(own_agent, opponent_agent, NUM_MATCHES)
-
-    with open(FILE_NAME, 'w') as f:
+    file_name = '{}_{}_{}_{}_{}'.format(PLAYER_ONE_TYPE, PLAYER_ONE_FUNCTION, PLAYER_TWO_TYPE, PLAYER_TWO_FUNCTION, NUM_MATCHES)
+    with open(file_name, 'w') as f:
         f.write(json.dumps(data))
 
 
 if __name__ == "__main__":
-    _, NUM_MATCHES, FILE_NAME, PLAYER_ONE_TYPE, PLAYER_ONE_FUNCTION, PLAYER_TWO_TYPE, PLAYER_TWO_FUNCTION = sys.argv
+    _, NUM_MATCHES, PLAYER_ONE_TYPE, PLAYER_ONE_FUNCTION, PLAYER_TWO_TYPE, PLAYER_TWO_FUNCTION = sys.argv
     NUM_MATCHES = int(NUM_MATCHES)
     main()
