@@ -126,7 +126,7 @@ def main():
                            opponent_id)
 
     data = play_matches(own_agent, opponent_agent, NUM_MATCHES)
-    file_name = '{}_{}_{}_{}_{}'.format(PLAYER_ONE_TYPE, PLAYER_ONE_FUNCTION, PLAYER_TWO_TYPE, PLAYER_TWO_FUNCTION, NUM_MATCHES)
+    file_name = '{}_{}_{}_{}_{}.json'.format(PLAYER_ONE_TYPE, PLAYER_ONE_FUNCTION, PLAYER_TWO_TYPE, PLAYER_TWO_FUNCTION, NUM_MATCHES)
     with open(file_name, 'w') as f:
         f.write(json.dumps(data))
 
