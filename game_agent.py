@@ -100,22 +100,37 @@ def legal_move_primary(game, player):
         opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
         return float(own_legal_moves - opponent_legal_moves)
 
-def legal_move_primary_opp13(game, player):
+def legal_move_primary_opp(game, player, factor=1):
     if len(game.get_legal_moves(game.active_player)) == 0:
         return float('-inf') if player == game.active_player else float('inf')
     else:
         own_legal_moves = len(game.get_legal_moves(player=player))
         opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
-        return float(own_legal_moves - 1.3*opponent_legal_moves)
+        return float(own_legal_moves - factor*opponent_legal_moves)
 
 def legal_move_primary_opp14(game, player):
-    if len(game.get_legal_moves(game.active_player)) == 0:
-        return float('-inf') if player == game.active_player else float('inf')
-    else:
-        own_legal_moves = len(game.get_legal_moves(player=player))
-        opponent_legal_moves = len(game.get_legal_moves(player=game.get_opponent(player=player)))
-        return float(own_legal_moves - 1.4*opponent_legal_moves)
+    return legal_move_primary_opp((game, player, 1.4))
 
+def legal_move_primary_opp13(game, player):
+    return legal_move_primary_opp((game, player, 1.3))
+
+def legal_move_primary_opp12(game, player):
+    return legal_move_primary_opp((game, player, 1.2))
+
+def legal_move_primary_opp11(game, player):
+    return legal_move_primary_opp((game, player, 1.1))
+
+def legal_move_primary_opp09(game, player):
+    return legal_move_primary_opp((game, player, .9))
+
+def legal_move_primary_opp08(game, player):
+    return legal_move_primary_opp((game, player, .8))
+
+def legal_move_primary_opp07(game, player):
+    return legal_move_primary_opp((game, player, .7))
+
+def legal_move_primary_opp06(game, player):
+    return legal_move_primary_opp((game, player, .6))
 
 def legal_move_primary_relsum(game, player):
     if len(game.get_legal_moves(game.active_player)) == 0:
@@ -190,16 +205,19 @@ class IsolationPlayer:
         self.name = name
 
 
+    def reset_for_new_game(self):
+        self.search_information = dict()
+
 class MinimaxPlayer(IsolationPlayer):
     """Game-playing agent that chooses a move using depth-limited minimax
     search. You must finish and test this player to make sure it properly uses
     minimax to return a good move before the search time limit expires.
     """
 
-    def __init__(self, search_depth=100, score_fn=custom_score, timeout=10., record_tree=False):
+    def __init__(self, search_depth=100, score_fn=custom_score, timeout=10., name=None, record_tree=False):
         self.record_tree = record_tree
         self.search_information = dict()
-        super().__init__(search_depth=search_depth, score_fn=score_fn, timeout=timeout)
+        super().__init__(search_depth=search_depth, score_fn=score_fn, timeout=timeout, name=name)
 
     def get_move(self, game, time_left):
         self.search_information = dict()
@@ -271,8 +289,6 @@ class AlphaBetaPlayer(IsolationPlayer):
         self.search_information = dict()
         super().__init__(search_depth=search_depth, score_fn=score_fn, timeout=timeout, name=name)
 
-    def reset_for_new_game(self):
-        self.search_information = dict()
 
     def get_move(self, game, time_left):
         self.time_left = lambda: time_left() - self.TIMER_THRESHOLD

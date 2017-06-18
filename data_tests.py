@@ -8,11 +8,39 @@ from collections import namedtuple, defaultdict
 from isolation import Board
 from sample_players import (RandomPlayer, open_move_score,
                             improved_score, center_score)
-from game_agent import (MinimaxPlayer, AlphaBetaPlayer, custom_score,
-                        custom_score_2, custom_score_3)
+from game_agent import (MinimaxPlayer, AlphaBetaPlayer, legal_move_primary, legal_move_primary_relmax,
+                        legal_move_primary_relsum, legal_move_primary_opp13, legal_move_primary_opp14,
+                        legal_move_primary_opp11, legal_move_primary_opp12, legal_move_primary_opp07,
+                        legal_move_primary_opp08, legal_move_primary_opp09, legal_move_primary_opp06,
+                        moves_intersect)
+
+player_types = {'random': RandomPlayer,
+                'minimax': MinimaxPlayer,
+                'alphabeta': AlphaBetaPlayer}
+
+score_functions = {'open': open_move_score,
+                   'center': center_score,
+                   'improved': improved_score,
+                   'legal_move_primary':legal_move_primary,
+                   'legal_move_primary_relmax':legal_move_primary_relmax,
+                   'legal_move_primary_relsum':legal_move_primary_relsum,
+                   'legal_move_primary_opp13': legal_move_primary_opp13,
+                   'legal_move_primary_opp14': legal_move_primary_opp14,
+                   'legal_move_primary_opp11': legal_move_primary_opp11,
+                   'legal_move_primary_opp12': legal_move_primary_opp12,
+                   'legal_move_primary_opp07': legal_move_primary_opp07,
+                   'legal_move_primary_opp08': legal_move_primary_opp08,
+                   'legal_move_primary_opp09': legal_move_primary_opp09,
+                   'legal_move_primary_opp06': legal_move_primary_opp06,
+                   'peekabo':moves_intersect
+                   }
 
 NUM_MATCHES = 5  # number of matches against each opponent
 TIME_LIMIT = 150  # number of milliseconds before timeout
+PLAYER_ONE_TYPE = None
+PLAYER_TWO_TYPE = None
+PLAYER_ONE_FUNCTION = None
+PLAYER_TWO_FUNCTION = None
 FILE_NAME = '??'
 
 DESCRIPTION = """
@@ -83,12 +111,18 @@ def play_matches(own_agent, opponent_agent, num_matches):
 
 
 def main():
+    own_id = '{}:{}'.format(PLAYER_ONE_FUNCTION, PLAYER_ONE_TYPE)
+    own_agent = Agent(player_types[PLAYER_ONE_TYPE](score_fn=score_functions[PLAYER_ONE_FUNCTION],
+                                                    name=own_id),
+                      own_id)
 
-    own_agent = Agent(AlphaBetaPlayer(score_fn=improved_score, name="AB_Improved"), "AB_Improved")
 
     # Define a collection of agents to compete against the test agents
 
-    opponent_agent = Agent(AlphaBetaPlayer(score_fn=improved_score, name="AB_Improved2"), "AB_Improved2")
+    opponent_id = '{}:{}'.format(PLAYER_TWO_FUNCTION, PLAYER_TWO_TYPE)
+    opponent_agent = Agent(player_types[PLAYER_TWO_TYPE](score_fn=score_functions[PLAYER_TWO_FUNCTION],
+                                                         name=opponent_id),
+                           opponent_id)
 
     data = play_matches(own_agent, opponent_agent, NUM_MATCHES)
 
@@ -97,7 +131,6 @@ def main():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) >= 3:
-        NUM_MATCHES = int(sys.argv[1])
-        FILE_NAME = sys.argv[2]
+    _, NUM_MATCHES, FILE_NAME, PLAYER_ONE_TYPE, PLAYER_ONE_FUNCTION, PLAYER_TWO_TYPE, PLAYER_TWO_FUNCTION = sys.argv
+    NUM_MATCHES = int(NUM_MATCHES)
     main()
