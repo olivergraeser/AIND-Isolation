@@ -83,11 +83,11 @@ def play_matches(own_agent, opponent_agent, num_matches):
 
 def main():
 
-    own_agent = Agent(AlphaBetaPlayer(score_fn=improved_score), "AB_Improved")
+    own_agent = Agent(AlphaBetaPlayer(score_fn=improved_score, name="AB_Improved"), "AB_Improved")
 
     # Define a collection of agents to compete against the test agents
 
-    opponent_agent = Agent(AlphaBetaPlayer(score_fn=improved_score), "AB_Improved2")
+    opponent_agent = Agent(AlphaBetaPlayer(score_fn=improved_score, name="AB_Improved2"), "AB_Improved2")
 
     data = play_matches(own_agent, opponent_agent, NUM_MATCHES)
 
