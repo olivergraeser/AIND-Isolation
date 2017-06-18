@@ -267,6 +267,9 @@ class AlphaBetaPlayer(IsolationPlayer):
         self.search_information = dict()
         super().__init__(search_depth=search_depth, score_fn=score_fn, timeout=timeout, name=name)
 
+    def reset_for_new_game(self):
+        self.search_information = dict()
+
     def get_move(self, game, time_left):
         self.time_left = lambda: time_left() - self.TIMER_THRESHOLD
         # Initialize the best move so that this function returns something
@@ -311,8 +314,9 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         # Return the best move from the last completed search iteration
         if self.record_tree:
-            self.search_information[game.get_movecount()] = search_history
-            self.search_information['cnt'] = count
+            search_history['cnt'] = count
+            self.search_information[game.get_movecount() + 1] = search_history
+
         #print(time_left())
         return return_move
 

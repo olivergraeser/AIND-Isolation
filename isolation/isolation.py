@@ -301,7 +301,8 @@ class Board(object):
             (e.g., timeout or invalid move).
         """
         move_history = []
-
+        self._player_1.reset_for_new_game()
+        self._player_2.reset_for_new_game()
         time_millis = lambda: 1000 * timeit.default_timer()
 
         while True:
