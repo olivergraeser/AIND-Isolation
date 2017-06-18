@@ -13,6 +13,7 @@ from game_agent import (MinimaxPlayer, AlphaBetaPlayer, custom_score,
 
 NUM_MATCHES = 5  # number of matches against each opponent
 TIME_LIMIT = 150  # number of milliseconds before timeout
+FILE_NAME = '??'
 
 DESCRIPTION = """
 This script evaluates the performance of the custom_score evaluation
@@ -91,11 +92,12 @@ def main():
 
     data = play_matches(own_agent, opponent_agent, NUM_MATCHES)
 
-    with open('improvedvimproved.json', 'w') as f:
+    with open(FILE_NAME, 'w') as f:
         f.write(json.dumps(data))
 
 
 if __name__ == "__main__":
-    if len(sys.argv) >= 2:
+    if len(sys.argv) >= 3:
         NUM_MATCHES = int(sys.argv[1])
+        FILE_NAME = sys.argv[2]
     main()
