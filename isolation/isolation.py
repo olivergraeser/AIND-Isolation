@@ -253,6 +253,9 @@ class Board(object):
         """DEPRECATED - use Board.to_string()"""
         return self.to_string()
 
+    def get_movecount(self):
+        return sum([1 if _ != 0 else 0 for _ in self._board_state[:-3]])
+
     def to_string(self, symbols=['1', '2']):
         """Generate a string representation of the current game state, marking
         the location of each player and indicating which cells have been
