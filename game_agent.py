@@ -44,7 +44,10 @@ def center_score(game, player):
 class FoundWinningMoveException(Exception):
     def __init__(self, move):
         self.move = move
-
+class ExistentialCrisisException(Exception):
+    def __init__(self, move, score):
+        self.move = move
+        self.score = score
 
 class SearchTimeout(Exception):
     """Subclass base exception for code clarity. """
@@ -291,14 +294,8 @@ class AlphaBetaPlayer(IsolationPlayer):
                     #count: number of available moves right now
                 else:
                     move = self.alphabeta(game, search_depth)
-                if move == (-1, -1):
-                    # Existential crisis - the agent can forsee that it will lose against a prefect player
-                    # Instead of continuing, we break and return the best move of the last depth iteration such
-                    # as to maximise our chances against a non-perfect player
-                    break
-                else:
-                    # completed this round of deepening - store for return
-                    return_move = move
+
+                return_move = move
 
                 search_depth += 1
 
@@ -310,6 +307,11 @@ class AlphaBetaPlayer(IsolationPlayer):
             #after three rounds
             return_move = fwme.move
             search_history[search_depth+1] = (return_move, float('inf'))
+        except ExistentialCrisisException as ece:
+            #prevents the agent from searching thousands of levels deep if the agent knows it will already win
+            #after three rounds
+            return_move = ece.move
+            search_history[search_depth+1] = (return_move, float('-inf'))
 
 
         # Return the best move from the last completed search iteration
@@ -345,6 +347,8 @@ class AlphaBetaPlayer(IsolationPlayer):
             if max_score == float('inf'):
                 #The move I found will guarantee me to win. I do not need to search deeper
                 raise FoundWinningMoveException(move=selected_move)
+            elif max_score == float('-inf'):
+                raise ExistentialCrisisException(move=selected_move, score=max_score)
         return selected_move, max_score, move_count
 
     def recursive_alphabeta(self, game, depth, alpha, beta, is_max):
