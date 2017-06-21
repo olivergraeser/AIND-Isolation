@@ -180,22 +180,21 @@ def norm_center_distance(game, player):
 def legal_primary_center(game, player):
     return legal_move_primary(game, player) - norm_center_distance(game, player)
 
+
 def custom_score(game, player: 'IsolationPlayer') ->float:
 
-    return improved_score(game, player)
-    return legal_move_primary(game, player)
+    return legal_move_primary_opp08(game, player)
 
 
 def custom_score_2(game, player):
 
-    return center_score(game, player)
-    return legal_move_primary_relmax(game, player)
+    return legal_primary_center(game, player)
 
 
 def custom_score_3(game, player):
 
-    return open_move_score(game, player)
-    return legal_move_primary_relsum(game, player)
+    return peekaboo(game, player)
+
 
 class IsolationPlayer:
 
